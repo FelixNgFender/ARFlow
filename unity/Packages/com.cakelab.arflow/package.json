@@ -1,0 +1,47 @@
+{
+  "name": "com.cakelab.arflow",
+  "version": "0.0.4",
+  "displayName": "ARFlow Client",
+  "description": "The ARFlow client is responsible for on-device AR data collection and high-performance AR data streaming. We implement the ARFlow client as a Unity application that can be easily ported to different platforms and devices.",
+  "unity": "2022.3",
+  "documentationUrl": "https://cake.wpi.edu/ARFlow/",
+  "changelogUrl": "https://github.com/cake-lab/ARFlow",
+ "keywords": [
+    "AR",
+    "ARFoundation",
+    "Client"
+  ],
+  "author": {
+    "name": "Cake lab",
+    "url": "https://cake.wpi.edu/"
+  },
+  "dependencies": {
+    "com.atteneder.draco": "4.1.0",
+    "com.cysharp.yetanotherhttphandler": "1.0.0",
+ },
+
+  "samples":
+  [
+    {
+      "displayName": "Device Sample",
+      "description": "A scene demonstrating using the ARFlow client for an XR Foundation-supported device.",
+      "path": "Samples~/Device"
+    },
+    {
+      "displayName": "Mock Data Sample",
+      "description": "A sample scene demonstrating client with mock data.",
+      "path": "Samples~/MockData"
+    },
+    {
+      "displayName": "Unity Data Sample",
+      "description": "A sample scene demonstrating client with data from a Unity scene.",
+      "path": "Samples~/UnityData"
+    },
+    {
+      "displayName": "Xihe Sample",
+      "description": "A scene an XR Foundation-supported device, with Xihe inference displayed on client.",
+      "path": "Samples~/Xihe"
+    }
+  ] 
+
+}
