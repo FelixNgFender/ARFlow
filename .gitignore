@@ -3,7 +3,8 @@
 
 #additional files
 .grpc_tools/**
-
+act.exe
+*.secrets
 ### macOS ###
 # General
 .DS_Store

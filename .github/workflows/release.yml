@@ -68,6 +68,41 @@ jobs:
           path: ./python/dist/
           if-no-files-found: error
 
+  unity-release:
+    name: Release unity package
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # Cache
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library
+          restore-keys: Library-
+
+      # Build
+      - name: Build .unitypackage
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        uses: game-ci/unity-builder@v4
+        with:
+          projectPath: ./unity
+          unityVersion: auto
+          buildMethod: ExportPackageExample.Editor.UnityPackageExporter.Export # Path to the export method containing the namespace.
+
+      # Upload
+      - name: Upload .unitypackage
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unity Package
+          path: ./unity/Build
+
   publish-docs:
     name: Publish documentation
     permissions:
