@@ -265,7 +265,6 @@ public class ARFlowDeviceSample : MonoBehaviour
             return;
         }
         Texture2D tex = QRManager.encode(_clientManager.getDeviceUid());
-
         QR.rawQR.texture = tex;
         QR.window.SetActive(true);
     }
