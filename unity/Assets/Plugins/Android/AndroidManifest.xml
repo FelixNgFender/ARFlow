@@ -12,4 +12,5 @@
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
     </application>
+            <uses-feature android:name="oculus.software.overlay_keyboard" android:required="false"/>
 </manifest>
