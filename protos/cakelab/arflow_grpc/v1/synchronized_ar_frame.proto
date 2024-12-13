@@ -24,4 +24,5 @@ message SynchronizedARFrame {
   PlaneDetectionFrame plane_detection_frame = 7;
   PointCloudDetectionFrame point_cloud_detection_frame = 8;
   MeshDetectionFrame mesh_detection_frame = 9;
+  //TODO: add PoseFrame
 }

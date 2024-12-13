@@ -40,6 +40,7 @@ from cakelab.arflow_grpc.v1.plane_detection_frame_pb2 import PlaneDetectionFrame
 from cakelab.arflow_grpc.v1.point_cloud_detection_frame_pb2 import (
     PointCloudDetectionFrame,
 )
+from cakelab.arflow_grpc.v1.pose_frame_pb2 import PoseFrame
 from cakelab.arflow_grpc.v1.save_ar_frames_request_pb2 import (
     SaveARFramesRequest,
 )
@@ -368,6 +369,14 @@ class ARFlowServicer(arflow_service_pb2_grpc.ARFlowServiceServicer):
                     session_stream=session_stream,
                     device=request.device,
                 )
+            elif (
+                frame_type == ARFrameType.POSE_DETECTION_FRAME and frames[0].pose_frame
+            ):
+                ar_frames = self._process_pose_detection_frames(
+                    frames=[f.pose_frame for f in frames],
+                    session_stream=session_stream,
+                    device=request.device,
+                )
 
         logger.debug(
             "Saved AR frames of device %s to session %s",
@@ -519,6 +528,23 @@ class ARFlowServicer(arflow_service_pb2_grpc.ARFlowServiceServicer):
         )
         return [ARFrame(mesh_detection_frame=f) for f in frames]
 
+    def _process_pose_detection_frames(
+        self,
+        frames: list[PoseFrame],
+        session_stream: SessionStream,
+        device: Device,
+    ) -> list[ARFrame]:
+        session_stream.save_pose_frames(
+            frames=frames,
+            device=device,
+        )
+        self.on_save_pose_frames(
+            frames=frames,
+            session_stream=session_stream,
+            device=device,
+        )
+        return [ARFrame(mesh_detection_frame=f) for f in frames]
+
     def on_save_ar_frames(
         self,
         frames: list[ARFrame],
@@ -642,6 +668,21 @@ class ARFlowServicer(arflow_service_pb2_grpc.ARFlowServiceServicer):
     def on_save_mesh_detection_frames(
         self,
         frames: list[MeshDetectionFrame],
+        session_stream: SessionStream,
+        device: Device,
+    ) -> None:
+        """Hook for user-defined procedures when mesh detection frames are saved to a recording stream.
+
+        Args:
+            frames: The mesh detection frames.
+            session_stream: The session stream.
+            device: The device that sent the AR frames.
+        """
+        pass
+
+    def on_save_pose_frames(
+        self,
+        frames: list[PoseFrame],
         session_stream: SessionStream,
         device: Device,
     ) -> None:

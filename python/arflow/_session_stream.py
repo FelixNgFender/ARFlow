@@ -27,6 +27,7 @@ from cakelab.arflow_grpc.v1.plane_detection_frame_pb2 import PlaneDetectionFrame
 from cakelab.arflow_grpc.v1.point_cloud_detection_frame_pb2 import (
     PointCloudDetectionFrame,
 )
+from cakelab.arflow_grpc.v1.pose_frame_pb2 import PoseFrame
 from cakelab.arflow_grpc.v1.session_pb2 import Session
 from cakelab.arflow_grpc.v1.transform_frame_pb2 import TransformFrame
 from cakelab.arflow_grpc.v1.xr_cpu_image_pb2 import XRCpuImage
@@ -65,6 +66,7 @@ class SessionStream:
             [
                 f"{self.info.metadata.name}_{self.info.id.value}",
                 f"{device.model}_{device.name}_{device.uid}",
+                ARFrameType.TRANSFORM_FRAME,
             ]
         )
         rr.log(
@@ -75,13 +77,9 @@ class SessionStream:
         )
         t = np.array([np.frombuffer(frame.data, dtype=np.float32) for frame in frames])
         transforms = np.array([np.eye(4, dtype=np.float32) for _ in range(len(frames))])
-        print("arr1: ", transforms)
         transforms[:, :3, :] = t.reshape((len(frames), 3, 4))
-        print("arr2: ", transforms)
-        transforms[:, :3, 3] = 0
-        print("arr3: ", transforms)
+        # transforms[:, :3, 3] = 0
         transforms = y_down_to_y_up @ transforms
-        print("arr4: ", transforms)
         rr.send_columns(
             entity_path,
             times=[
@@ -99,6 +97,51 @@ class SessionStream:
                 ),
                 rr.components.Translation3DBatch(
                     data=[transform[:3, 3] for transform in transforms]
+                ),
+            ],
+            # TODO: Remove when this stabilizes. See https://github.com/rerun-io/rerun/issues/8167
+            recording=self.stream.to_native(),  # pyright: ignore [reportUnknownMemberType, reportUnknownArgumentType]
+        )
+
+    def save_pose_frames(
+        self,
+        frames: list[PoseFrame],
+        device: Device,
+    ):
+        if len(frames) == 0:
+            logger.warning("No frames to save.")
+            return
+
+        # Path at root of device hierarchy
+        entity_path = rr.new_entity_path(
+            [
+                f"{self.info.metadata.name}_{self.info.id.value}",
+                f"{device.model}_{device.name}_{device.uid}",
+            ]
+        )
+        rr.log(
+            entity_path,
+            [rr.Transform3D.indicator()],
+            static=True,
+            recording=self.stream,
+        )
+        rr.send_columns(
+            entity_path,
+            times=[
+                rr.TimeSecondsColumn(
+                    timeline=Timeline.DEVICE,
+                    times=[
+                        f.device_timestamp.seconds + f.device_timestamp.nanos / 1e9
+                        for f in frames
+                    ],
+                ),
+            ],
+            components=[
+                rr.components.TransformMat3x3Batch(
+                    data=[np.array(frame.pose.position) for frame in frames]
+                ),
+                rr.components.Translation3DBatch(
+                    data=[np.array(frame.pose.position) for frame in frames]
                 ),
             ],
             # TODO: Remove when this stabilizes. See https://github.com/rerun-io/rerun/issues/8167

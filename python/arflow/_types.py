@@ -16,6 +16,7 @@ class ARFrameType(StrEnum):
     PLANE_DETECTION_FRAME = "plane_detection_frame"
     POINT_CLOUD_DETECTION_FRAME = "point_cloud_detection_frame"
     MESH_DETECTION_FRAME = "mesh_detection_frame"
+    POSE_DETECTION_FRAME = "pose_detection_frame"
 
 
 class Timeline(StrEnum):
